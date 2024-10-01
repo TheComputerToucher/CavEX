@@ -19,8 +19,13 @@
 
 #include <GL/glew.h>
 #include <assert.h>
-#include <malloc.h>
 #include <string.h>
+
+#ifdef MACOSX
+#include <malloc/malloc.h>
+#else
+#include <malloc.h>
+#endif
 
 #include "../displaylist.h"
 

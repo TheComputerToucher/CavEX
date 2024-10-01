@@ -1,14 +1,30 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(cavex C)
+project(cavex)
 
-add_compile_options(-O3 -march=native -g)
+option(BUILD_CAFE "Build for Nintendo Wii U (you have to use wii u portlibs powerpc-eabi-cmake)" OFF)
 
-find_package(ZLIB REQUIRED)
-find_package(Threads REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+if(BUILD_CAFE)
+	add_compile_options(-O3 -g)
+else()
+	add_compile_options(-O3 -march=native -g)
+endif()
+
+include_directories(include)
+
+if (BUILD_CAFE)
+	find_package(ZLIB REQUIRED)
+else()
+	find_package(ZLIB REQUIRED)
+	find_package(Threads REQUIRED)
+	find_package(glfw3 3.3 REQUIRED)
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		set(MACOSX TRUE)
+		add_compile_definitions(MACOSX)
+	endif()
+endif()
 
 add_executable(cavex
 				source/block/aabb.c
@@ -132,7 +148,7 @@ add_executable(cavex
 				source/chunk.c
 				source/daytime.c
 				source/lighting.c
-				source/main.c
+		        source/main.cpp
 				source/stack.c
 				source/util.c
 				source/world.c
@@ -144,13 +160,26 @@ add_executable(cavex
 				source/parson/parson.c
 			)
 
-target_compile_definitions(cavex PRIVATE PLATFORM_PC CGLM_ALL_UNALIGNED)
+if (BUILD_CAFE)
+	target_compile_definitions(cavex PRIVATE PLATFORM_CAFE)
+else()
+	target_compile_definitions(cavex PRIVATE PLATFORM_PC CGLM_ALL_UNALIGNED)
+endif()
 
-set_target_properties(
-	cavex PROPERTIES
-	C_STANDARD 99
-)
+#set_target_properties(
+#	cavex PROPERTIES
+#	CXX_STANDARD 20
+#)
+#set_target_properties(
+#	cavex PROPERTIES
+#	LINKER_LANGUAGE CXX
+#)
 
-set_property(TARGET cavex PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+if (BUILD_CAFE)
+	target_link_libraries(cavex ZLIB::ZLIB)
+	wut_create_rpx(cavex)
+else()
+	set_property(TARGET cavex PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 
-target_link_libraries(cavex ${CMAKE_THREAD_LIBS_INIT} ZLIB::ZLIB glfw GLEW::GLEW OpenGL::GL m)
+	target_link_libraries(cavex ${CMAKE_THREAD_LIBS_INIT} ZLIB::ZLIB glfw GLEW::GLEW OpenGL::GL m)
+endif()

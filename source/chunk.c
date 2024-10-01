@@ -18,10 +18,15 @@
 */
 
 #include <assert.h>
-#include <malloc.h>
 #include <math.h>
 #include <stddef.h>
 #include <string.h>
+
+#ifdef MACOSX
+#include <malloc/malloc.h>
+#else
+#include <malloc.h>
+#endif
 
 #include "block/blocks.h"
 #include "chunk.h"

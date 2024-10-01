@@ -55,6 +55,7 @@ struct thread_channel {
 
 void thread_create(struct thread* t, void* (*entry)(void* arg), void* arg,
 				   uint8_t priority);
+
 void thread_join(struct thread* t);
 void thread_msleep(size_t ms);
 

@@ -21,9 +21,14 @@
 #include <GLFW/glfw3.h>
 #include <assert.h>
 #include <m-lib/m-string.h>
-#include <malloc.h>
 #include <math.h>
 #include <string.h>
+
+#ifdef MACOSX
+#include <malloc/malloc.h>
+#else
+#include <malloc.h>
+#endif
 
 #include "../../game/game_state.h"
 #include "../../graphics/texture_atlas.h"
